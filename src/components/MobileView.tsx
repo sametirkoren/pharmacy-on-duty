@@ -1067,7 +1067,7 @@ export default function MobileView({
                   <p style={{ margin: '0 0 12px' }}>Kişisel verileriniz üçüncü taraflarla paylaşılmaz. Uygulama herhangi bir kullanıcı hesabı veya kayıt gerektirmez.</p>
                   
                   <p style={{ margin: '0 0 10px', fontWeight: 600, color: colors.text }}>📋 KVKK Uyumu</p>
-                  <p style={{ margin: 0 }}>Bu uygulama 6698 sayılı Kişisel Verilerin Korunması Kanunu'na uygun olarak geliştirilmiştir.</p>
+                  <p style={{ margin: 0 }}>Bu uygulama 6698 sayılı Kişisel Verilerin Korunması Kanunu&apos;na uygun olarak geliştirilmiştir.</p>
                 </div>
               </div>
             </div>
