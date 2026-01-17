@@ -1,36 +1,128 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 💊 Nöbetçi Eczane Bulucu (Pharmacy On-Duty Finder)
 
-## Getting Started
+Türkiye genelinde nöbetçi eczaneleri kolayca bulmanızı sağlayan modern bir web uygulaması. Konumunuza en yakın nöbetçi eczaneleri harita üzerinde görüntüleyin, yol tarifi alın ve iletişim bilgilerine ulaşın.
 
-First, run the development server:
+🔗 **Live Demo:** [pharmacy-finder.vercel.app](https://pharmacy-finder-267n1q9g0-sametirkorens-projects.vercel.app)
 
+![Pharmacy Finder Screenshot](public/og-image.png)
+
+## ✨ Özellikler
+
+- 📍 **Konum Tabanlı Arama** - GPS ile en yakın nöbetçi eczaneleri bulun
+- 🗺️ **İnteraktif Harita** - Leaflet haritası üzerinde eczaneleri görüntüleyin
+- 🌙 **Dark/Light Mode** - Göz yormayan tema desteği
+- 📱 **Responsive Tasarım** - Mobil ve masaüstü uyumlu
+- 🔍 **İl/İlçe Filtreleme** - Şehir ve ilçe bazında arama
+- 📞 **Tek Tıkla Arama** - Eczaneyi doğrudan arayın
+- 🧭 **Yol Tarifi** - Google Maps ile navigasyon
+- ⭐ **Favoriler** - Sık kullandığınız eczaneleri kaydedin
+- 🔔 **PWA Desteği** - Ana ekrana ekleyin, offline kullanın
+
+## 🛠️ Teknolojiler
+
+- **Framework:** [Next.js 15](https://nextjs.org/) (App Router)
+- **UI:** [React 19](https://react.dev/) + [Tailwind CSS](https://tailwindcss.com/)
+- **Harita:** [Leaflet](https://leafletjs.com/) + [React Leaflet](https://react-leaflet.js.org/)
+- **Veritabanı:** [Supabase](https://supabase.com/)
+- **UI Components:** [Radix UI](https://www.radix-ui.com/) + [Lucide Icons](https://lucide.dev/)
+- **Deployment:** [Vercel](https://vercel.com/)
+
+## 🚀 Kurulum
+
+### Gereksinimler
+
+- Node.js 20+
+- npm veya yarn
+
+### Adımlar
+
+1. **Repoyu klonlayın:**
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/sametirkoren/pharmacy-on-duty.git
+cd pharmacy-on-duty
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. **Bağımlılıkları yükleyin:**
+```bash
+npm install --legacy-peer-deps
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. **Environment değişkenlerini ayarlayın:**
+```bash
+cp .env.example .env.local
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+`.env.local` dosyasını düzenleyin:
+```env
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
 
-## Learn More
+4. **Geliştirme sunucusunu başlatın:**
+```bash
+npm run dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+5. **Tarayıcıda açın:** [http://localhost:3000](http://localhost:3000)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 📁 Proje Yapısı
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+pharmacy-finder/
+├── src/
+│   ├── app/              # Next.js App Router
+│   │   ├── api/          # API Routes
+│   │   └── page.tsx      # Ana sayfa
+│   ├── components/       # React bileşenleri
+│   │   ├── DynamicMap.tsx
+│   │   ├── MobileView.tsx
+│   │   ├── Sidebar.tsx
+│   │   └── ...
+│   └── lib/              # Utility fonksiyonlar
+│       ├── supabase.ts   # Supabase client
+│       └── database.ts   # Database queries
+├── public/               # Statik dosyalar
+└── package.json
+```
 
-## Deploy on Vercel
+## 🔧 Scripts
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+npm run dev      # Geliştirme sunucusu
+npm run build    # Production build
+npm run start    # Production sunucusu
+npm run lint     # ESLint kontrolü
+npm run test     # Jest testleri
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 📝 API Endpoints
+
+| Endpoint | Açıklama |
+|----------|----------|
+| `GET /api/nearby` | Konuma yakın eczaneler |
+| `GET /api/cities` | Mevcut şehirler |
+| `GET /api/districts` | İlçe listesi |
+| `GET /api/pharmacies` | Eczane listesi |
+| `GET /api/all-pharmacies` | Tüm eczaneler |
+
+## 🤝 Katkıda Bulunma
+
+1. Fork edin
+2. Feature branch oluşturun (`git checkout -b feature/amazing-feature`)
+3. Commit edin (`git commit -m 'Add amazing feature'`)
+4. Push edin (`git push origin feature/amazing-feature`)
+5. Pull Request açın
+
+## 📄 Lisans
+
+Bu proje MIT lisansı altında lisanslanmıştır. Detaylar için [LICENSE](LICENSE) dosyasına bakın.
+
+## 👨‍💻 Geliştirici
+
+**Samet İrkören**
+
+- GitHub: [@sametirkoren](https://github.com/sametirkoren)
+
+---
+
+⭐ Bu projeyi beğendiyseniz yıldız vermeyi unutmayın!
