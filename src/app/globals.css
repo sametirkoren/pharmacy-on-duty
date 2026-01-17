@@ -1,26 +1,107 @@
 @import "tailwindcss";
+@import "leaflet/dist/leaflet.css";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* Base styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+html, body {
+  height: 100%;
+  overflow: hidden;
+  font-family: 'Lexend', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: #050b14;
+  color: #e2e8f0;
+  -webkit-font-smoothing: antialiased;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Glass panel effect */
+.glass-panel {
+  background: rgba(10, 15, 30, 0.75);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Scrollbar hide */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Leaflet overrides */
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+  background: #050b14 !important;
+}
+
+.leaflet-tile-pane {
+  filter: brightness(0.8) contrast(1.1);
+}
+
+.leaflet-control-attribution {
+  background: rgba(10, 15, 30, 0.8) !important;
+  color: #64748b !important;
+  font-size: 10px !important;
+  padding: 2px 8px !important;
+  border-radius: 4px !important;
+  backdrop-filter: blur(12px);
+}
+
+.leaflet-control-attribution a {
+  color: #00ff9d !important;
+}
+
+.leaflet-popup-content-wrapper {
+  background: rgba(10, 15, 30, 0.95);
+  color: white;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+.leaflet-popup-tip {
+  background: rgba(10, 15, 30, 0.95);
+}
+
+.leaflet-popup-close-button {
+  color: #94a3b8 !important;
+}
+
+/* Animations */
+@keyframes pulse-slow {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes bounce-slow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Custom marker styles */
+.custom-pharmacy-marker,
+.custom-user-marker,
+.custom-cluster-icon {
+  background: transparent !important;
+  border: none !important;
+}
+
+/* Cluster styles */
+.marker-cluster {
+  background: transparent !important;
+}
+
+.marker-cluster div {
+  background: transparent !important;
 }
