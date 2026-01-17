@@ -4,7 +4,7 @@ Türkiye genelinde nöbetçi eczaneleri kolayca bulmanızı sağlayan modern bir
 
 🔗 **Live Demo:** [pharmacy-finder.vercel.app](https://pharmacy-finder-267n1q9g0-sametirkorens-projects.vercel.app)
 
-![Screenshot]([https://github.com/user-attachments/assets/xxx](https://github.com/user-attachments/assets/ce08cc79-9a60-408a-8ee7-73f357b40d7f))
+![Screenshot](https://github.com/user-attachments/assets/ce08cc79-9a60-408a-8ee7-73f357b40d7f)
 
 
 ## ✨ Özellikler
