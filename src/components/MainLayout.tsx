@@ -114,6 +114,49 @@ export default function MainLayout() {
     }
   }, [mounted]);
 
+  // Auto-request location on page load if permission was previously granted
+  useEffect(() => {
+    if (!mounted) return;
+    
+    const savedLocation = localStorage.getItem('savedLocation');
+    const hasAskedBefore = localStorage.getItem('locationPermissionAsked');
+    
+    if (hasAskedBefore && !savedLocation && !userLocation && navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const location = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+            accuracy: position.coords.accuracy,
+            timestamp: Date.now()
+          };
+          setUserLocation(location);
+          
+          // Fetch nearby pharmacies
+          setIsLoading(true);
+          try {
+            const response = await fetch(`/api/nearby?lat=${location.lat}&lng=${location.lng}&radius=50`);
+            const data = await response.json();
+            if (data.success && data.data) {
+              setPharmacies(data.data);
+              if (data.data.length > 0) {
+                setSelectedPharmacy(data.data[0]);
+              }
+            }
+          } catch (err) {
+            console.log('Auto fetch nearby failed:', err);
+          } finally {
+            setIsLoading(false);
+          }
+        },
+        (error) => {
+          console.log('Auto location failed:', error.message);
+        },
+        { enableHighAccuracy: false, timeout: 5000, maximumAge: 300000 }
+      );
+    }
+  }, [mounted, userLocation]);
+
   // Listen for system theme changes when in auto mode
   useEffect(() => {
     if (!mounted || themeMode !== 'auto') return;
