@@ -252,20 +252,37 @@ export default function MainLayout() {
     setIsLoading(true);
     setError(null);
     try {
+      console.log('Fetching nearby pharmacies for location:', lat, lng);
       const response = await fetch(`/api/nearby?lat=${lat}&lng=${lng}&limit=20`);
       const data: NearbyPharmaciesResponse = await response.json();
+      
+      console.log('Nearby API response:', data);
       
       if (data.success && data.data && data.data.length > 0) {
         const sorted = data.data.sort((a, b) => a.distance - b.distance);
         console.log('Nearby pharmacies with distances:', sorted.slice(0, 3).map(p => ({ name: p.pharmacy, distance: p.distance })));
         setPharmacies(sorted);
         setSelectedPharmacy(sorted[0]);
-        // NOT: selectedCity/selectedDistrict set etmiyoruz çünkü
-        // bu Sidebar'ın yeniden arama yapmasına ve mesafelerin kaybolmasına neden olur
       } else {
-        setError('Yakınında nöbetçi eczane bulunamadı');
+        // Fallback: tüm eczaneleri getir ve mesafe hesapla
+        console.log('No nearby pharmacies found, fetching all...');
+        const allResponse = await fetch('/api/all-pharmacies');
+        const allData = await allResponse.json();
+        
+        if (allData.success && allData.data && allData.data.length > 0) {
+          const withDistance = allData.data.map((p: PharmacyWithDistance) => ({
+            ...p,
+            distance: calculateDistance(lat, lng, p.lat, p.lng)
+          }));
+          const sorted = withDistance.sort((a: PharmacyWithDistance, b: PharmacyWithDistance) => a.distance - b.distance);
+          setPharmacies(sorted);
+          setSelectedPharmacy(sorted[0]);
+        } else {
+          setError('Nöbetçi eczane bulunamadı');
+        }
       }
     } catch (err) {
+      console.error('Error fetching nearby:', err);
       setError('Eczaneler yüklenirken hata oluştu');
     } finally {
       setIsLoading(false);
