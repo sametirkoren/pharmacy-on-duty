@@ -35,11 +35,11 @@ const createPharmacyIcon = (isClosest: boolean = false, isDarkMode: boolean = tr
 
   // Theme-based colors
   const bgGradient = isDarkMode ? 'linear-gradient(135deg, #0a1628, #050b14)' : 'linear-gradient(135deg, #ffffff, #f1f5f9)';
-  const crossColor = isDarkMode ? '#00ff9d' : '#10b981';
-  const centerBg = isDarkMode ? '#050b14' : '#ffffff';
-  const borderColor = isDarkMode ? 'rgba(0,255,157,0.3)' : '#e2e8f0';
-  const boxShadow = isDarkMode ? '0 0 20px rgba(0,255,157,0.5), 0 8px 24px rgba(0,0,0,0.4)' : '0 4px 16px rgba(0,0,0,0.15)';
-  const smallBoxShadow = isDarkMode ? '0 0 12px rgba(0,255,157,0.3), 0 4px 12px rgba(0,0,0,0.4)' : '0 4px 12px rgba(0,0,0,0.1)';
+  const crossColor = isDarkMode ? '#10b981' : '#059669';
+  const centerBg = isDarkMode ? '#1f2937' : '#ffffff';
+  const borderColor = isDarkMode ? 'rgba(16,185,129,0.3)' : '#e5e7eb';
+  const boxShadow = isDarkMode ? '0 2px 8px rgba(0,0,0,0.3)' : '0 2px 8px rgba(0,0,0,0.1)';
+  const smallBoxShadow = isDarkMode ? '0 1px 4px rgba(0,0,0,0.2)' : '0 1px 4px rgba(0,0,0,0.08)';
   const labelBg = isDarkMode ? '#0d1117' : '#ffffff';
   const labelColor = isDarkMode ? 'white' : '#1e293b';
   const labelBorder = isDarkMode ? '1px solid #1e293b' : '1px solid #e2e8f0';

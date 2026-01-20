@@ -105,51 +105,39 @@ export default function MobileMap({ pharmacies, selectedPharmacy, userLocation, 
     // Clear existing markers
     clusterGroupRef.current.clearLayers();
 
-    // Custom pharmacy icon matching logo design with theme support
-    const bgGradient = isDarkMode ? 'linear-gradient(135deg,#0a1628,#050b14)' : 'linear-gradient(135deg,#ffffff,#f1f5f9)';
-    const crossColor = isDarkMode ? '#00ff9d' : '#10b981';
-    const centerBg = isDarkMode ? '#050b14' : '#ffffff';
-    const borderColor = isDarkMode ? 'rgba(0,255,157,0.4)' : '#e2e8f0';
-    const boxShadow = isDarkMode ? '0 0 20px rgba(0,255,157,0.5),0 8px 24px rgba(0,0,0,0.4)' : '0 4px 16px rgba(0,0,0,0.15)';
-    const smallBoxShadow = isDarkMode ? '0 0 10px rgba(0,255,157,0.3),0 4px 12px rgba(0,0,0,0.4)' : '0 4px 12px rgba(0,0,0,0.1)';
-    const labelBg = isDarkMode ? 'rgba(5,11,20,0.95)' : 'rgba(255,255,255,0.95)';
-    const labelColor = isDarkMode ? 'white' : '#1e293b';
-    const labelBorder = isDarkMode ? '1.5px solid rgba(0,255,157,0.4)' : '1.5px solid #e2e8f0';
-    const labelShadow = isDarkMode ? '0 0 20px rgba(0,255,157,0.4)' : '0 4px 16px rgba(0,0,0,0.1)';
-    const pulseColor = isDarkMode ? 'rgba(0,255,157,0.2)' : 'rgba(16,185,129,0.15)';
+    // Clean minimal design matching desktop
+    const truncateName = (n?: string) => n && n.length > 18 ? n.substring(0, 16) + '...' : n;
 
     const createIcon = (isSelected: boolean, name?: string) => {
+      const displayName = truncateName(name);
       if (isSelected) {
         return L.divIcon({
           className: 'custom-pharmacy-marker-selected',
-          html: `<div style="position:relative;display:flex;flex-direction:column;align-items:center;width:140px;">
-            <div style="background:${labelBg};padding:6px 10px;border-radius:10px;margin-bottom:6px;border:${labelBorder};box-shadow:${labelShadow};max-width:140px;">
-              <p style="font-weight:600;font-size:11px;color:${labelColor};margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${name || 'Eczane'}</p>
+          html: `<div style="display:flex;flex-direction:column;align-items:center;">
+            <div style="background:#ffffff;padding:10px 14px;border-radius:12px;margin-bottom:8px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.12);">
+              <p style="font-weight:600;font-size:14px;color:#1f2937;margin:0;white-space:nowrap;">${displayName || 'Eczane'}</p>
             </div>
-            <div style="position:relative;width:48px;height:48px;display:flex;align-items:center;justify-content:center;">
-              <div style="position:absolute;width:64px;height:64px;background:${pulseColor};border-radius:16px;animation:pulse 1.5s ease-out infinite;"></div>
-              <div style="width:48px;height:48px;background:${bgGradient};border-radius:14px;display:flex;align-items:center;justify-content:center;box-shadow:${boxShadow};border:2px solid ${borderColor};position:relative;z-index:2;">
-                <svg width="26" height="26" viewBox="0 0 24 24">
-                  <rect x="10" y="4" width="4" height="16" rx="1" fill="${crossColor}"/>
-                  <rect x="4" y="10" width="16" height="4" rx="1" fill="${crossColor}"/>
-                  <circle cx="12" cy="12" r="2.5" fill="${centerBg}"/>
-                  <circle cx="12" cy="12" r="1.2" fill="${crossColor}"/>
-                </svg>
-              </div>
+            <div style="width:44px;height:44px;background:#ffffff;border-radius:12px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.12);">
+              <svg width="24" height="24" viewBox="0 0 24 24">
+                <rect x="10" y="4" width="4" height="16" rx="1" fill="#10b981"/>
+                <rect x="4" y="10" width="16" height="4" rx="1" fill="#10b981"/>
+                <circle cx="12" cy="12" r="2.5" fill="#ffffff"/>
+                <circle cx="12" cy="12" r="1.2" fill="#10b981"/>
+              </svg>
             </div>
           </div>`,
-          iconSize: [140, 90],
-          iconAnchor: [70, 85],
+          iconSize: [180, 95],
+          iconAnchor: [90, 90],
         });
       }
       return L.divIcon({
         className: 'custom-pharmacy-marker',
-        html: `<div style="width:36px;height:36px;background:${bgGradient};border-radius:10px;display:flex;align-items:center;justify-content:center;border:1.5px solid ${isDarkMode ? 'rgba(0,255,157,0.25)' : '#e2e8f0'};box-shadow:${smallBoxShadow};">
+        html: `<div style="width:36px;height:36px;background:#ffffff;border-radius:10px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,0.1);">
           <svg width="20" height="20" viewBox="0 0 24 24">
-            <rect x="10" y="4" width="4" height="16" rx="1" fill="${crossColor}"/>
-            <rect x="4" y="10" width="16" height="4" rx="1" fill="${crossColor}"/>
-            <circle cx="12" cy="12" r="2" fill="${centerBg}"/>
-            <circle cx="12" cy="12" r="1" fill="${crossColor}"/>
+            <rect x="10" y="4" width="4" height="16" rx="1" fill="#10b981"/>
+            <rect x="4" y="10" width="16" height="4" rx="1" fill="#10b981"/>
+            <circle cx="12" cy="12" r="2" fill="#ffffff"/>
+            <circle cx="12" cy="12" r="1" fill="#10b981"/>
           </svg>
         </div>`,
         iconSize: [36, 36],
@@ -238,15 +226,14 @@ export default function MobileMap({ pharmacies, selectedPharmacy, userLocation, 
           background: transparent;
         }
         .cluster-icon {
-          background: #00ff9d;
+          background: #10b981;
           border-radius: 50%;
           display: flex;
           align-items: center;
           justify-content: center;
           font-weight: 700;
-          color: #0f172a;
-          box-shadow: 0 0 20px rgba(0,255,157,0.6);
-          border: 3px solid white;
+          color: white;
+          border: 2px solid white;
         }
         .cluster-small {
           width: 40px;
@@ -264,11 +251,11 @@ export default function MobileMap({ pharmacies, selectedPharmacy, userLocation, 
           font-size: 18px;
         }
         .marker-cluster-small, .marker-cluster-medium, .marker-cluster-large {
-          background: rgba(0,255,157,0.3) !important;
+          background: rgba(16,185,129,0.2) !important;
         }
         .marker-cluster-small div, .marker-cluster-medium div, .marker-cluster-large div {
-          background: #00ff9d !important;
-          color: #0f172a !important;
+          background: #10b981 !important;
+          color: white !important;
           font-weight: 700 !important;
         }
       `}</style>

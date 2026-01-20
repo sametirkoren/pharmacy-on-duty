@@ -39,11 +39,31 @@ export default function MainLayout() {
   const [searchQuery, setSearchQuery] = useState('');
   const [savedPharmacies, setSavedPharmacies] = useState<SavedPharmacy[]>([]);
   const [sortBy, setSortBy] = useState<'default' | 'distance' | 'name'>('default');
-  const [isDarkMode, setIsDarkMode] = useState(true);
-  const [themeMode, setThemeMode] = useState<'auto' | 'dark' | 'light'>('auto');
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [themeMode, setThemeMode] = useState<'auto' | 'dark' | 'light'>('light');
   const [isMobile, setIsMobile] = useState(false);
   const [showLocationModal, setShowLocationModal] = useState(false);
   const [hasSavedLocation, setHasSavedLocation] = useState(false);
+  const [lastUpdateDate, setLastUpdateDate] = useState<string>('');
+  const [locationAttempts, setLocationAttempts] = useState(0);
+  const [locationError, setLocationError] = useState(false);
+  const [isRequestingLocation, setIsRequestingLocation] = useState(false);
+
+  // Fetch last update date from API
+  useEffect(() => {
+    const fetchLastUpdate = async () => {
+      try {
+        const res = await fetch('/api/last-update');
+        const data = await res.json();
+        if (data.success && data.data?.formattedDate) {
+          setLastUpdateDate(data.data.formattedDate);
+        }
+      } catch (error) {
+        console.error('Failed to fetch last update:', error);
+      }
+    };
+    fetchLastUpdate();
+  }, []);
 
   // Check for mobile viewport
   useEffect(() => {
@@ -82,9 +102,9 @@ export default function MainLayout() {
         setIsDarkMode(savedThemeMode === 'dark');
       }
     } else {
-      // Default to auto mode - check system preference
-      const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      setIsDarkMode(systemDark);
+      // Default to light mode for better usability
+      setThemeMode('light');
+      setIsDarkMode(false);
     }
     
     // Check if there's a saved location
@@ -130,22 +150,22 @@ export default function MainLayout() {
     if (!mounted) return;
     if (isMobile) return; // Mobilde MobileView kendi modalını gösteriyor
     
-    const hasAskedBefore = localStorage.getItem('locationPermissionAsked');
     const savedLocation = localStorage.getItem('savedLocation');
     
-    // Kayıtlı konum varsa veya daha önce sorulmuşsa modal gösterme
-    if (!hasAskedBefore && !savedLocation) {
+    // Kayıtlı konum yoksa ve konum hatası yoksa modal göster
+    if (!savedLocation && !userLocation && !locationError) {
       const timer = setTimeout(() => {
         setShowLocationModal(true);
       }, 1000);
       return () => clearTimeout(timer);
     }
-  }, [isMobile, mounted]); // userLocation'ı dependency'den çıkardık - modal gösterimi konum alınmasına bağlı olmamalı
+  }, [isMobile, mounted, userLocation, locationError]);
 
   const handleLocationPermission = () => {
-    setShowLocationModal(false);
-    localStorage.setItem('locationPermissionAsked', 'true');
+    if (isRequestingLocation) return; // Prevent multiple requests
+    
     if (navigator.geolocation) {
+      setIsRequestingLocation(true);
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const location = {
@@ -155,12 +175,32 @@ export default function MainLayout() {
             timestamp: Date.now()
           };
           setUserLocation(location);
+          setShowLocationModal(false);
+          setLocationAttempts(0);
+          setLocationError(false);
+          setIsRequestingLocation(false);
           // Konum alındıktan sonra yakındaki eczaneleri getir
           fetchNearbyWithLocation(location.lat, location.lng);
         },
-        (error) => console.log('Konum izni reddedildi:', error.message),
-        { enableHighAccuracy: true, timeout: 10000 }
+        (error) => {
+          console.log('Konum izni reddedildi:', error.message);
+          setIsRequestingLocation(false);
+          setLocationAttempts(prev => {
+            const newAttempts = prev + 1;
+            if (newAttempts >= 3) {
+              // 3 deneme sonrası hata göster
+              setShowLocationModal(false);
+              setLocationError(true);
+            }
+            return newAttempts;
+          });
+        },
+        { enableHighAccuracy: false, timeout: 5000, maximumAge: 300000 }
       );
+    } else {
+      // Geolocation desteklenmiyor
+      setShowLocationModal(false);
+      setLocationError(true);
     }
   };
   
@@ -305,35 +345,8 @@ export default function MainLayout() {
       }
     };
 
-    // Kayıtlı konum yoksa, kullanıcı konumunu al ve yakındaki eczaneleri getir
-    if (!savedLocation && navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const location = {
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
-            accuracy: position.coords.accuracy,
-            timestamp: Date.now()
-          };
-          setUserLocation(location);
-          // Konum alındıysa yakındaki eczaneleri getir
-          fetchNearbyWithLocation(location.lat, location.lng);
-        },
-        (error) => {
-          console.log('Could not get user location:', error.message);
-          // Konum alınamadıysa tüm eczaneleri yükle
-          loadInitialData();
-        },
-        {
-          enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 60000
-        }
-      );
-    } else {
-      // Kayıtlı konum varsa normal yükle
-      loadInitialData();
-    }
+    // Kayıtlı konum yoksa modal gösterilecek, şimdilik tüm eczaneleri yükle
+    loadInitialData();
   }, [mounted]);
 
   // Search pharmacies by city/district
@@ -484,6 +497,7 @@ export default function MainLayout() {
         isDarkMode={isDarkMode}
         themeMode={themeMode}
         onToggleTheme={toggleTheme}
+        lastUpdateDate={lastUpdateDate}
       />
     );
   }
@@ -496,7 +510,7 @@ export default function MainLayout() {
         <div style={{ 
           position: 'fixed', 
           inset: 0, 
-          background: 'rgba(0,0,0,0.7)', 
+          background: 'rgba(0,0,0,0.6)', 
           zIndex: 9999, 
           display: 'flex', 
           alignItems: 'center', 
@@ -504,96 +518,202 @@ export default function MainLayout() {
           padding: '20px'
         }}>
           <div style={{ 
-            background: isDarkMode ? 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)' : 'linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%)', 
-            borderRadius: '28px', 
-            padding: '40px 32px', 
-            maxWidth: '400px',
+            background: isDarkMode ? '#1e293b' : '#ffffff', 
+            borderRadius: '24px', 
+            padding: '32px', 
+            maxWidth: '380px',
             width: '100%',
-            border: isDarkMode ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.1)',
-            boxShadow: '0 25px 50px rgba(0,0,0,0.5)'
+            border: isDarkMode ? '1px solid rgba(255,255,255,0.1)' : '1px solid #e5e7eb',
+            boxShadow: '0 20px 40px rgba(0,0,0,0.3)'
           }}>
             {/* Icon */}
             <div style={{ 
-              width: '80px', 
-              height: '80px', 
+              width: '72px', 
+              height: '72px', 
               borderRadius: '50%', 
-              background: 'rgba(0,255,157,0.15)', 
+              background: 'rgba(16,185,129,0.1)', 
               display: 'flex', 
               alignItems: 'center', 
               justifyContent: 'center',
-              margin: '0 auto 24px',
-              border: '2px solid rgba(0,255,157,0.3)'
+              margin: '0 auto 20px'
             }}>
-              <svg width="40" height="40" viewBox="0 0 24 24" fill="#00ff9d">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="#10b981">
                 <path d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm8.94 3c-.46-4.17-3.77-7.48-7.94-7.94V1h-2v2.06C6.83 3.52 3.52 6.83 3.06 11H1v2h2.06c.46 4.17 3.77 7.48 7.94 7.94V23h2v-2.06c4.17-.46 7.48-3.77 7.94-7.94H23v-2h-2.06zM12 19c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/>
               </svg>
             </div>
             
             {/* Title */}
             <h2 style={{ 
-              fontSize: '24px', 
+              fontSize: '20px', 
               fontWeight: 700, 
-              color: isDarkMode ? 'white' : '#0f172a', 
+              color: isDarkMode ? 'white' : '#111827', 
               textAlign: 'center',
-              marginBottom: '16px'
+              marginBottom: '12px'
             }}>
-              Konum İzni Gerekli
+              {locationAttempts > 0 ? `Konum Alınamadı (${locationAttempts}/3)` : 'Konum İzni Gerekli'}
             </h2>
             
             {/* Description */}
             <p style={{ 
-              fontSize: '15px', 
-              color: isDarkMode ? '#94a3b8' : '#64748b', 
+              fontSize: '14px', 
+              color: isDarkMode ? '#9ca3af' : '#6b7280', 
               textAlign: 'center',
-              lineHeight: 1.7,
-              marginBottom: '32px'
+              lineHeight: 1.6,
+              marginBottom: '24px'
             }}>
-              Size en yakın nöbetçi eczaneleri gösterebilmemiz için konum bilginize ihtiyacımız var. 
-              Konum bilginiz sadece bu amaçla kullanılır ve üçüncü taraflarla paylaşılmaz.
+              {locationAttempts > 0 
+                ? 'Konum bilginiz alınamadı. Lütfen tarayıcı ayarlarından konum iznini aktif edin ve tekrar deneyin.'
+                : 'Size en yakın nöbetçi eczaneleri gösterebilmemiz için konum bilginize ihtiyacımız var.'}
             </p>
+            
+            {/* Retry indicator */}
+            {locationAttempts > 0 && (
+              <div style={{ 
+                display: 'flex', 
+                justifyContent: 'center', 
+                gap: '8px', 
+                marginBottom: '20px' 
+              }}>
+                {[1, 2, 3].map(i => (
+                  <div 
+                    key={i} 
+                    style={{ 
+                      width: '8px', 
+                      height: '8px', 
+                      borderRadius: '50%', 
+                      background: i <= locationAttempts ? '#ef4444' : '#e5e7eb'
+                    }} 
+                  />
+                ))}
+              </div>
+            )}
             
             {/* Buttons */}
             <button 
               onClick={handleLocationPermission}
               style={{ 
                 width: '100%', 
-                background: '#00ff9d', 
-                color: '#050b14', 
-                fontSize: '16px', 
-                fontWeight: 700, 
-                padding: '16px', 
-                borderRadius: '16px', 
+                background: '#10b981', 
+                color: 'white', 
+                fontSize: '15px', 
+                fontWeight: 600, 
+                padding: '14px', 
+                borderRadius: '12px', 
                 border: 'none', 
                 cursor: 'pointer',
-                marginBottom: '12px',
-                boxShadow: '0 0 30px rgba(0,255,157,0.3)',
+                marginBottom: '10px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 gap: '8px'
               }}
             >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm8.94 3c-.46-4.17-3.77-7.48-7.94-7.94V1h-2v2.06C6.83 3.52 3.52 6.83 3.06 11H1v2h2.06c.46 4.17 3.77 7.48 7.94 7.94V23h2v-2.06c4.17-.46 7.48-3.77 7.94-7.94H23v-2h-2.06zM12 19c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/>
               </svg>
-              Konumumu Kullan
+              {locationAttempts > 0 ? 'Tekrar Dene' : 'Konumumu Kullan'}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Location Error Modal - after 3 failed attempts */}
+      {locationError && (
+        <div style={{ 
+          position: 'fixed', 
+          inset: 0, 
+          background: 'rgba(0,0,0,0.6)', 
+          zIndex: 9999, 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center',
+          padding: '20px'
+        }}>
+          <div style={{ 
+            background: isDarkMode ? '#1e293b' : '#ffffff', 
+            borderRadius: '24px', 
+            padding: '32px', 
+            maxWidth: '380px',
+            width: '100%',
+            border: isDarkMode ? '1px solid rgba(255,255,255,0.1)' : '1px solid #e5e7eb',
+            boxShadow: '0 20px 40px rgba(0,0,0,0.3)'
+          }}>
+            {/* Error Icon */}
+            <div style={{ 
+              width: '72px', 
+              height: '72px', 
+              borderRadius: '50%', 
+              background: 'rgba(239,68,68,0.1)', 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center',
+              margin: '0 auto 20px'
+            }}>
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="#ef4444">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+              </svg>
+            </div>
+            
+            {/* Title */}
+            <h2 style={{ 
+              fontSize: '20px', 
+              fontWeight: 700, 
+              color: isDarkMode ? 'white' : '#111827', 
+              textAlign: 'center',
+              marginBottom: '12px'
+            }}>
+              Konum Alınamıyor
+            </h2>
+            
+            {/* Description */}
+            <p style={{ 
+              fontSize: '14px', 
+              color: isDarkMode ? '#9ca3af' : '#6b7280', 
+              textAlign: 'center',
+              lineHeight: 1.6,
+              marginBottom: '24px'
+            }}>
+              Konum bilginize erişemedik. Çevrenizdekileri görebilmek için lütfen tarayıcı ayarlarından konum iznini etkinleştirin veya manuel olarak şehir/ilçe seçin.
+            </p>
+            
+            {/* Buttons */}
+            <button 
+              onClick={() => {
+                setLocationError(false);
+                setLocationAttempts(0);
+                setShowLocationModal(true);
+              }}
+              style={{ 
+                width: '100%', 
+                background: '#10b981', 
+                color: 'white', 
+                fontSize: '15px', 
+                fontWeight: 600, 
+                padding: '14px', 
+                borderRadius: '12px', 
+                border: 'none', 
+                cursor: 'pointer',
+                marginBottom: '10px'
+              }}
+            >
+              Tekrar Dene
             </button>
             
             <button 
-              onClick={skipLocationPermission}
+              onClick={() => setLocationError(false)}
               style={{ 
                 width: '100%', 
                 background: 'transparent', 
-                color: isDarkMode ? '#64748b' : '#94a3b8', 
+                color: isDarkMode ? '#9ca3af' : '#6b7280', 
                 fontSize: '14px', 
                 fontWeight: 500, 
-                padding: '14px', 
-                borderRadius: '12px', 
-                border: isDarkMode ? '1px solid rgba(255,255,255,0.1)' : '1px solid rgba(0,0,0,0.1)', 
+                padding: '12px', 
+                borderRadius: '10px', 
+                border: isDarkMode ? '1px solid rgba(255,255,255,0.1)' : '1px solid #e5e7eb', 
                 cursor: 'pointer'
               }}
             >
-              Şimdilik Geç
+              Manuel Seçim Yap
             </button>
           </div>
         </div>
@@ -633,6 +753,7 @@ export default function MainLayout() {
         themeMode={themeMode}
         onToggleTheme={toggleTheme}
         onShare={sharePharmacy}
+        lastUpdateDate={lastUpdateDate}
       />
     </div>
   );
