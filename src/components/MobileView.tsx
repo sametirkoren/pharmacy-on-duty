@@ -209,7 +209,17 @@ export default function MobileView({
     message += '_Nobetci Eczane uygulamasi ile paylasildi_';
     
     const encoded = encodeURIComponent(message);
-    window.open(`https://wa.me/?text=${encoded}`, '_blank');
+    
+    // Mobile: Use whatsapp:// protocol, fallback to api.whatsapp.com
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    
+    if (isMobile) {
+      // Try native WhatsApp app first
+      window.location.href = `whatsapp://send?text=${encoded}`;
+    } else {
+      // Desktop: use web.whatsapp.com
+      window.open(`https://web.whatsapp.com/send?text=${encoded}`, '_blank');
+    }
   };
 
   // Menu actions
