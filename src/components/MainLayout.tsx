@@ -209,8 +209,12 @@ export default function MainLayout() {
     
     if (navigator.geolocation) {
       setIsRequestingLocation(true);
+      setError(null);
+      
+      // İlk olarak düşük doğruluk ile hızlı konum almayı dene
       navigator.geolocation.getCurrentPosition(
         (position) => {
+          console.log('Konum alındı:', position.coords);
           const location = {
             lat: position.coords.latitude,
             lng: position.coords.longitude,
@@ -222,28 +226,52 @@ export default function MainLayout() {
           setLocationAttempts(0);
           setLocationError(false);
           setIsRequestingLocation(false);
+          localStorage.setItem('locationPermissionAsked', 'true');
           // Konum alındıktan sonra yakındaki eczaneleri getir
           fetchNearbyWithLocation(location.lat, location.lng);
         },
         (error) => {
-          console.log('Konum izni reddedildi:', error.message);
+          console.error('Konum hatası:', error.code, error.message);
           setIsRequestingLocation(false);
+          localStorage.setItem('locationPermissionAsked', 'true');
+          
+          // Hata koduna göre mesaj göster
+          let errorMessage = '';
+          switch (error.code) {
+            case error.PERMISSION_DENIED:
+              errorMessage = 'Konum izni reddedildi. Tarayıcı ayarlarından izin verin.';
+              break;
+            case error.POSITION_UNAVAILABLE:
+              errorMessage = 'Konum bilgisi alınamadı. GPS açık mı kontrol edin.';
+              break;
+            case error.TIMEOUT:
+              errorMessage = 'Konum isteği zaman aşımına uğradı. Tekrar deneyin.';
+              break;
+            default:
+              errorMessage = 'Konum alınamadı. Lütfen tekrar deneyin.';
+          }
+          setError(errorMessage);
+          
           setLocationAttempts(prev => {
             const newAttempts = prev + 1;
             if (newAttempts >= 3) {
-              // 3 deneme sonrası hata göster
               setShowLocationModal(false);
               setLocationError(true);
             }
             return newAttempts;
           });
         },
-        { enableHighAccuracy: false, timeout: 5000, maximumAge: 300000 }
+        { 
+          enableHighAccuracy: false, 
+          timeout: 15000,  // 15 saniye timeout
+          maximumAge: 60000  // 1 dakikalık cache
+        }
       );
     } else {
       // Geolocation desteklenmiyor
       setShowLocationModal(false);
       setLocationError(true);
+      setError('Bu tarayıcı konum servisini desteklemiyor.');
     }
   };
   
