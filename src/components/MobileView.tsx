@@ -1138,14 +1138,62 @@ export default function MobileView({
               </div>
 
               <div style={{ background: colors.card, borderRadius: '16px', padding: '16px', border: `1px solid ${colors.cardBorder}`, marginBottom: '12px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
                   <div>
                     <span style={{ fontSize: '15px', fontWeight: 600, color: colors.text }}>Konum Servisi</span>
-                    <p style={{ fontSize: '12px', color: colors.textSecondary, marginTop: '4px' }}>Yakındaki eczaneleri bulmak için</p>
+                    <p style={{ fontSize: '12px', color: colors.textSecondary, marginTop: '4px' }}>
+                      {userLocation ? `Konum alındı (${userLocation.lat.toFixed(4)}, ${userLocation.lng.toFixed(4)})` : 'Konum bilgisi alınamadı'}
+                    </p>
                   </div>
                   <div style={{ width: '44px', height: '24px', borderRadius: '12px', background: userLocation ? '#10b981' : '#334155', position: 'relative' }}>
                     <div style={{ width: '20px', height: '20px', borderRadius: '50%', background: 'white', position: 'absolute', top: '2px', left: userLocation ? '22px' : '2px', transition: 'left 0.2s' }}></div>
                   </div>
+                </div>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <button
+                    onClick={() => {
+                      if (onRequestLocation) {
+                        onRequestLocation();
+                      }
+                    }}
+                    style={{
+                      flex: 1,
+                      padding: '10px 16px',
+                      borderRadius: '10px',
+                      border: 'none',
+                      background: '#10b981',
+                      color: 'white',
+                      fontSize: '13px',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '6px'
+                    }}
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm8.94 3A8.994 8.994 0 0 0 13 3.06V1h-2v2.06A8.994 8.994 0 0 0 3.06 11H1v2h2.06A8.994 8.994 0 0 0 11 20.94V23h2v-2.06A8.994 8.994 0 0 0 20.94 13H23v-2h-2.06zM12 19c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/></svg>
+                    Konumumu Bul
+                  </button>
+                  <button
+                    onClick={() => {
+                      localStorage.removeItem('locationPermissionAsked');
+                      localStorage.removeItem('savedLocation');
+                      window.location.reload();
+                    }}
+                    style={{
+                      padding: '10px 16px',
+                      borderRadius: '10px',
+                      border: `1px solid ${colors.cardBorder}`,
+                      background: 'transparent',
+                      color: colors.textSecondary,
+                      fontSize: '13px',
+                      fontWeight: 500,
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Sıfırla
+                  </button>
                 </div>
               </div>
               <div style={{ background: colors.card, borderRadius: '16px', padding: '16px', border: `1px solid ${colors.cardBorder}`, marginBottom: '12px' }}>
