@@ -494,6 +494,7 @@ export default function MainLayout() {
         onCityDistrictSearch={handleCityDistrictSearch}
         onReset={handleReset}
         onFetchNearby={handleFetchNearby}
+        onRequestLocation={handleLocationPermission}
         isDarkMode={isDarkMode}
         themeMode={themeMode}
         onToggleTheme={toggleTheme}

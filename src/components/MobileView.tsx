@@ -31,6 +31,7 @@ interface MobileViewProps {
   onCityDistrictSearch: (city: string, district: string) => void;
   onReset: () => void;
   onFetchNearby: () => void;
+  onRequestLocation?: () => void;
   isDarkMode?: boolean;
   themeMode?: 'auto' | 'dark' | 'light';
   onToggleTheme?: () => void;
@@ -47,6 +48,7 @@ export default function MobileView({
   onCityDistrictSearch,
   onReset,
   onFetchNearby,
+  onRequestLocation,
   isDarkMode = false,
   themeMode = 'light',
   onToggleTheme,
@@ -117,20 +119,9 @@ export default function MobileView({
     setLocationPermissionAsked(true);
     localStorage.setItem('locationPermissionAsked', 'true');
     
-    // Konum iznini iste ve yakındaki eczaneleri getir
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          console.log('Konum alındı:', position.coords.latitude, position.coords.longitude);
-          // Konum alındığında yakındaki eczaneleri getir
-          onFetchNearby();
-        },
-        (error) => {
-          console.log('Konum izni reddedildi:', error.message);
-          alert('Konum izni alınamadı. Lütfen tarayıcı ayarlarından konum iznini açın.');
-        },
-        { enableHighAccuracy: true, timeout: 10000 }
-      );
+    // Ana component'ın konum iznini istemesini sağla
+    if (onRequestLocation) {
+      onRequestLocation();
     }
   };
 
@@ -381,33 +372,34 @@ export default function MobileView({
         <div style={{ 
           position: 'fixed', 
           inset: 0, 
-          background: 'rgba(0,0,0,0.8)', 
+          background: 'rgba(0,0,0,0.5)', 
           zIndex: 9999, 
           display: 'flex', 
           alignItems: 'center', 
           justifyContent: 'center',
-          padding: '20px'
+          padding: '20px',
+          WebkitBackdropFilter: 'blur(8px)',
+          backdropFilter: 'blur(8px)'
         }}>
           <div style={{ 
-            background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)', 
-            borderRadius: '28px', 
+            background: colors.card, 
+            borderRadius: '24px', 
             padding: '32px 24px', 
             maxWidth: '340px',
             width: '100%',
-            border: '1px solid rgba(255,255,255,0.1)',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+            border: `1px solid ${colors.cardBorder}`,
+            boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)'
           }}>
             {/* Icon */}
             <div style={{ 
               width: '72px', 
               height: '72px', 
               borderRadius: '50%', 
-              background: 'rgba(16,185,129,0.15)', 
+              background: 'rgba(16,185,129,0.1)', 
               display: 'flex', 
               alignItems: 'center', 
               justifyContent: 'center',
-              margin: '0 auto 20px',
-              border: '2px solid rgba(16,185,129,0.3)'
+              margin: '0 auto 20px'
             }}>
               <svg width="36" height="36" viewBox="0 0 24 24" fill="#10b981">
                 <path d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm8.94 3c-.46-4.17-3.77-7.48-7.94-7.94V1h-2v2.06C6.83 3.52 3.52 6.83 3.06 11H1v2h2.06c.46 4.17 3.77 7.48 7.94 7.94V23h2v-2.06c4.17-.46 7.48-3.77 7.94-7.94H23v-2h-2.06zM12 19c-3.87 0-7-3.13-7-7s3.13-7 7-7 7 3.13 7 7-3.13 7-7 7z"/>
@@ -418,7 +410,7 @@ export default function MobileView({
             <h2 style={{ 
               fontSize: '20px', 
               fontWeight: 700, 
-              color: 'white', 
+              color: colors.text, 
               textAlign: 'center',
               marginBottom: '12px'
             }}>
@@ -428,7 +420,7 @@ export default function MobileView({
             {/* Description */}
             <p style={{ 
               fontSize: '14px', 
-              color: '#94a3b8', 
+              color: colors.textSecondary, 
               textAlign: 'center',
               lineHeight: 1.6,
               marginBottom: '24px'
@@ -445,13 +437,13 @@ export default function MobileView({
                 background: '#10b981', 
                 color: '#ffffff', 
                 fontSize: '16px', 
-                fontWeight: 700, 
+                fontWeight: 600, 
                 padding: '16px', 
-                borderRadius: '16px', 
+                borderRadius: '14px', 
                 border: 'none', 
                 cursor: 'pointer',
                 marginBottom: '12px',
-                boxShadow: 'none'
+                boxShadow: '0 4px 14px rgba(16,185,129,0.3)'
               }}
             >
               <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
@@ -466,13 +458,13 @@ export default function MobileView({
               onClick={skipLocationPermission}
               style={{ 
                 width: '100%', 
-                background: 'transparent', 
-                color: '#64748b', 
+                background: colors.buttonBg, 
+                color: colors.textSecondary, 
                 fontSize: '14px', 
                 fontWeight: 500, 
-                padding: '12px', 
-                borderRadius: '12px', 
-                border: '1px solid rgba(255,255,255,0.1)', 
+                padding: '14px', 
+                borderRadius: '14px', 
+                border: 'none', 
                 cursor: 'pointer'
               }}
             >
@@ -1121,19 +1113,21 @@ export default function MobileView({
 
         {/* Bottom Tab Bar */}
         <nav style={{ 
-          position: 'absolute', 
-          bottom: '24px', 
-          left: '20px', 
-          right: '20px', 
-          background: isDarkMode ? 'rgba(10, 15, 30, 0.9)' : 'rgba(255, 255, 255, 0.95)', 
+          position: 'fixed', 
+          bottom: 'max(16px, env(safe-area-inset-bottom, 16px))', 
+          left: '16px', 
+          right: '16px', 
+          background: isDarkMode ? 'rgba(10, 15, 30, 0.95)' : 'rgba(255, 255, 255, 0.98)', 
+          WebkitBackdropFilter: 'blur(20px)', 
           backdropFilter: 'blur(20px)', 
-          borderRadius: '28px', 
-          padding: '12px 16px',
+          borderRadius: '24px', 
+          padding: '10px 12px',
           display: 'flex',
           justifyContent: 'space-around',
           alignItems: 'center',
           border: `1px solid ${colors.cardBorder}`,
-          boxShadow: isDarkMode ? '0 25px 50px rgba(0,0,0,0.5)' : '0 10px 40px rgba(0,0,0,0.15)'
+          boxShadow: isDarkMode ? '0 -4px 30px rgba(0,0,0,0.3)' : '0 -2px 20px rgba(0,0,0,0.1)',
+          zIndex: 1000
         }}>
           <button onClick={() => { setActiveTab('search'); setShowMenu(false); }} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', background: 'none', border: 'none', cursor: 'pointer', color: activeTab === 'search' ? (isDarkMode ? '#10b981' : '#059669') : (isDarkMode ? '#64748b' : '#64748b'), padding: '4px 0' }}>
             <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
@@ -1200,6 +1194,9 @@ export default function MobileView({
         *::-webkit-scrollbar-thumb { background: rgba(16,185,129,0.3); border-radius: 10px; }
         *::-webkit-scrollbar-thumb:hover { background: rgba(16,185,129,0.5); }
         * { scrollbar-width: thin; scrollbar-color: rgba(16,185,129,0.3) transparent; }
+        @supports (padding: max(0px)) {
+          nav { padding-bottom: max(10px, env(safe-area-inset-bottom)); }
+        }
       `}</style>
     </div>
   );
