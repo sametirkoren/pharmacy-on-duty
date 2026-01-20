@@ -582,8 +582,6 @@ export default function MobileView({
                   position: 'relative'
                 }}>
                                     
-                  <h2 style={{ fontSize: '22px', fontWeight: 700, color: colors.text, marginBottom: '24px', lineHeight: 1.3 }}>Yakındaki Nöbetçi<br/>Eczaneyi Bul</h2>
-                  
                   {/* Country Selector - Tab Style */}
                   <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', background: isDarkMode ? 'rgba(255,255,255,0.03)' : '#f1f5f9', padding: '4px', borderRadius: '14px' }}>
                     <button 
