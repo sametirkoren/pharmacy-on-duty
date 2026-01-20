@@ -98,20 +98,35 @@ export default function MobileView({
     }
   }, [mounted]);
 
-  // Uygulama açıldığında konum izni modalını göster
+  // Uygulama açıldığında konum izni modalını göster veya otomatik konum al
   useEffect(() => {
     if (!mounted) return;
-    const hasAskedBefore = localStorage.getItem('locationPermissionAsked');
     const savedLocation = localStorage.getItem('savedLocation');
-    // Kayıtlı konum varsa modal gösterme
-    if (!hasAskedBefore && !userLocation && !savedLocation) {
-      // 1 saniye bekle sonra modal göster
+    
+    // Kayıtlı il/ilçe seçimi varsa konum modal gösterme
+    if (savedLocation) return;
+    
+    // Konum zaten varsa modal gösterme
+    if (userLocation) return;
+    
+    // Daha önce izin sorulduysa, otomatik konum almayı dene
+    const hasAskedBefore = localStorage.getItem('locationPermissionAsked');
+    if (hasAskedBefore && onRequestLocation) {
+      // Kısa bir gecikme ile otomatik konum iste
+      const timer = setTimeout(() => {
+        onRequestLocation();
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+    
+    // İlk kez ise modal göster
+    if (!hasAskedBefore) {
       const timer = setTimeout(() => {
         setShowLocationModal(true);
       }, 1000);
       return () => clearTimeout(timer);
     }
-  }, [userLocation, mounted]);
+  }, [userLocation, mounted, onRequestLocation]);
 
 
   const handleLocationPermission = () => {
