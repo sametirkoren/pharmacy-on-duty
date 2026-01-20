@@ -57,7 +57,7 @@ export default function MobileView({
   const [activeTab, setActiveTab] = useState<'search' | 'map' | 'saved' | 'settings'>('search');
   const [savedPharmacies, setSavedPharmacies] = useState<{id: string; name: string; address: string; phone: string; lat: number; lng: number; savedAt: number}[]>([]);
   const [mounted, setMounted] = useState(false);
-  const [selectedCountry, setSelectedCountry] = useState('');
+  const [selectedCountry, setSelectedCountry] = useState('Türkiye');
   const [selectedCity, setSelectedCity] = useState('');
   const [selectedDistrict, setSelectedDistrict] = useState('');
   const [cities, setCities] = useState<string[]>([]);
