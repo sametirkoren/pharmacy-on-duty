@@ -559,70 +559,132 @@ export default function MobileView({
                                     
                   <h2 style={{ fontSize: '22px', fontWeight: 700, color: colors.text, marginBottom: '24px', lineHeight: 1.3 }}>Yakındaki Nöbetçi<br/>Eczaneyi Bul</h2>
                   
-                  {/* Country Select */}
-                  <div style={{ marginBottom: '16px' }}>
-                    <label style={{ display: 'block', fontSize: '10px', color: '#64748b', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px', marginLeft: '4px' }}>Ülke</label>
-                    <div style={{ position: 'relative' }}>
-                      <div style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)' }}>
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="#10b981"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
-                      </div>
-                      <select
-                        value={selectedCountry}
-                        onChange={e => { setSelectedCountry(e.target.value); setSelectedCity(''); setSelectedDistrict(''); setShowPharmacyList(false); }}
-                        style={{ width: '100%', appearance: 'none', background: colors.inputBg, border: `1px solid ${colors.inputBorder}`, borderRadius: '16px', padding: '16px 40px 16px 48px', fontSize: '15px', color: colors.text, cursor: 'pointer', outline: 'none' }}
-                      >
-                        <option value="">Ülke Seçin</option>
-                        {countries.map(c => <option key={c} value={c}>{c}</option>)}
-                      </select>
-                      <div style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)' }}>
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="#64748b"><path d="M7 10l5 5 5-5z"/></svg>
-                      </div>
-                    </div>
+                  {/* Country Selector - Tab Style */}
+                  <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', background: isDarkMode ? 'rgba(255,255,255,0.03)' : '#f1f5f9', padding: '4px', borderRadius: '14px' }}>
+                    <button 
+                      onClick={() => { setSelectedCountry('Türkiye'); setSelectedCity(''); setSelectedDistrict(''); setShowPharmacyList(false); }}
+                      style={{ 
+                        flex: 1, 
+                        padding: '12px 16px', 
+                        borderRadius: '12px', 
+                        border: 'none',
+                        background: selectedCountry === 'Türkiye' ? '#10b981' : 'transparent',
+                        color: selectedCountry === 'Türkiye' ? 'white' : colors.textSecondary,
+                        fontSize: '14px',
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '8px',
+                        transition: 'all 0.2s'
+                      }}
+                    >
+                      🇹🇷 Türkiye
+                    </button>
+                    <button 
+                      onClick={() => { setSelectedCountry('Kuzey Kıbrıs'); setSelectedCity('Kıbrıs'); setSelectedDistrict(''); setShowPharmacyList(false); }}
+                      style={{ 
+                        flex: 1, 
+                        padding: '12px 16px', 
+                        borderRadius: '12px', 
+                        border: 'none',
+                        background: selectedCountry === 'Kuzey Kıbrıs' ? '#10b981' : 'transparent',
+                        color: selectedCountry === 'Kuzey Kıbrıs' ? 'white' : colors.textSecondary,
+                        fontSize: '14px',
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '8px',
+                        transition: 'all 0.2s'
+                      }}
+                    >
+                      🇨🇾 Kıbrıs
+                    </button>
                   </div>
 
-                  {/* City Select - Kuzey Kıbrıs için gizle */}
-                  {selectedCountry !== 'Kuzey Kıbrıs' && (
-                    <div style={{ marginBottom: '16px' }}>
-                      <label style={{ display: 'block', fontSize: '10px', color: '#64748b', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px', marginLeft: '4px' }}>İl / Şehir</label>
-                      <div style={{ position: 'relative' }}>
-                        <div style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)' }}>
-                          <svg width="20" height="20" viewBox="0 0 24 24" fill="#10b981"><path d="M15 11V5l-3-3-3 3v2H3v14h18V11h-6zm-8 8H5v-2h2v2zm0-4H5v-2h2v2zm0-4H5V9h2v2zm6 8h-2v-2h2v2zm0-4h-2v-2h2v2zm0-4h-2V9h2v2zm0-4h-2V5h2v2zm6 12h-2v-2h2v2zm0-4h-2v-2h2v2z"/></svg>
-                        </div>
+                  {/* City/District Select Row */}
+                  <div style={{ display: 'flex', gap: '10px', marginBottom: '16px' }}>
+                    {/* City Select - Kuzey Kıbrıs için gizle */}
+                    {selectedCountry !== 'Kuzey Kıbrıs' && (
+                      <div style={{ flex: 1, position: 'relative' }}>
                         <select
                           value={selectedCity}
                           onChange={e => { setSelectedCity(e.target.value); setSelectedDistrict(''); setShowPharmacyList(false); }}
-                          style={{ width: '100%', appearance: 'none', background: colors.inputBg, border: `1px solid ${colors.inputBorder}`, borderRadius: '16px', padding: '16px 40px 16px 48px', fontSize: '15px', color: colors.text, cursor: 'pointer', outline: 'none' }}
+                          style={{ 
+                            width: '100%', 
+                            appearance: 'none', 
+                            background: colors.card, 
+                            border: `1px solid ${colors.inputBorder}`, 
+                            borderRadius: '14px', 
+                            padding: '14px 36px 14px 14px', 
+                            fontSize: '14px', 
+                            fontWeight: 500,
+                            color: selectedCity ? colors.text : colors.textSecondary, 
+                            cursor: 'pointer', 
+                            outline: 'none' 
+                          }}
                         >
                           <option value="">İl Seçin</option>
                           {cities.map(c => <option key={c} value={c}>{c}</option>)}
                         </select>
-                        <div style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)' }}>
-                          <svg width="20" height="20" viewBox="0 0 24 24" fill="#64748b"><path d="M7 10l5 5 5-5z"/></svg>
+                        <div style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}>
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="#94a3b8"><path d="M7 10l5 5 5-5z"/></svg>
                         </div>
                       </div>
-                    </div>
-                  )}
+                    )}
 
-                  {/* District Select */}
-                  <div style={{ marginBottom: '20px' }}>
-                    <label style={{ display: 'block', fontSize: '10px', color: '#64748b', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px', marginLeft: '4px' }}>İlçe</label>
-                    <div style={{ position: 'relative' }}>
-                      <div style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)' }}>
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="#64748b"><path d="M20.5 3l-.16.03L15 5.1 9 3 3.36 4.9c-.21.07-.36.25-.36.48V20.5c0 .28.22.5.5.5l.16-.03L9 18.9l6 2.1 5.64-1.9c.21-.07.36-.25.36-.48V3.5c0-.28-.22-.5-.5-.5zM15 19l-6-2.11V5l6 2.11V19z"/></svg>
-                      </div>
+                    {/* District Select */}
+                    <div style={{ flex: 1, position: 'relative' }}>
                       <select
                         value={selectedDistrict}
                         onChange={e => setSelectedDistrict(e.target.value)}
                         disabled={!selectedCity}
-                        style={{ width: '100%', appearance: 'none', background: colors.inputBg, border: `1px solid ${colors.inputBorder}`, borderRadius: '16px', padding: '16px 40px 16px 48px', fontSize: '15px', color: colors.text, cursor: selectedCity ? 'pointer' : 'not-allowed', outline: 'none', opacity: selectedCity ? 1 : 0.5 }}
+                        style={{ 
+                          width: '100%', 
+                          appearance: 'none', 
+                          background: colors.card, 
+                          border: `1px solid ${colors.inputBorder}`, 
+                          borderRadius: '14px', 
+                          padding: '14px 36px 14px 14px', 
+                          fontSize: '14px', 
+                          fontWeight: 500,
+                          color: selectedDistrict ? colors.text : colors.textSecondary, 
+                          cursor: selectedCity ? 'pointer' : 'not-allowed', 
+                          outline: 'none', 
+                          opacity: selectedCity ? 1 : 0.6 
+                        }}
                       >
                         <option value="">İlçe Seçin</option>
                         {districts.map(d => <option key={d} value={d}>{d}</option>)}
                       </select>
-                      <div style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)' }}>
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="#64748b"><path d="M7 10l5 5 5-5z"/></svg>
+                      <div style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="#94a3b8"><path d="M7 10l5 5 5-5z"/></svg>
                       </div>
                     </div>
+
+                    {/* Reset Button */}
+                    <button 
+                      onClick={() => { setSelectedCountry(''); setSelectedCity(''); setSelectedDistrict(''); setShowPharmacyList(false); onReset(); }} 
+                      style={{ 
+                        width: '48px', 
+                        height: '48px', 
+                        background: isDarkMode ? 'rgba(255,255,255,0.05)' : '#f1f5f9', 
+                        border: 'none', 
+                        borderRadius: '14px', 
+                        cursor: 'pointer', 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        justifyContent: 'center', 
+                        color: '#64748b', 
+                        flexShrink: 0 
+                      }} 
+                      title="Sıfırla"
+                    >
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+                    </button>
                   </div>
 
                   {/* Search Button */}
