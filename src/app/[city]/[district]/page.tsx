@@ -2,7 +2,7 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import MainLayout from '@/components/MainLayout';
 import { WebsiteStructuredData } from '@/components/StructuredData';
-import { generateBreadcrumbSchema, getBreadcrumbItems } from '@/components/Breadcrumb';
+import { generateBreadcrumbSchema, getBreadcrumbItems } from '@/lib/breadcrumb-utils';
 
 const TURKEY_CITIES: Record<string, string> = {
   'adana': 'Adana',
