@@ -4,7 +4,7 @@ import ErrorBoundary from "@/components/ErrorBoundary";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://nobetci-eczane.vercel.app'),
+  metadataBase: new URL('https://nobetci-eczane-bulucu.vercel.app'),
   title: {
     default: "Nöbetçi Eczane Bulucu | Türkiye Geneli",
     template: "%s | Nöbetçi Eczane Bulucu"
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'tr_TR',
-    url: 'https://nobetci-eczane.vercel.app',
+    url: 'https://nobetci-eczane-bulucu.vercel.app',
     siteName: 'Nöbetçi Eczane Bulucu',
     title: 'Nöbetçi Eczane Bulucu | Türkiye Geneli',
     description: 'Türkiye genelinde nöbetçi eczaneleri kolayca bulun. Konumunuza en yakın açık eczaneleri harita üzerinde görün.',
@@ -56,7 +56,7 @@ export const metadata: Metadata = {
     google: 'google-site-verification-code',
   },
   alternates: {
-    canonical: 'https://nobetci-eczane.vercel.app',
+    canonical: 'https://nobetci-eczane-bulucu.vercel.app',
   },
 };
 
