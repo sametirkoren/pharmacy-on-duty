@@ -68,9 +68,6 @@ export const metadata: Metadata = {
     description: 'Türkiye genelinde nöbetçi eczaneleri kolayca bulun. Konumunuza en yakın açık eczaneleri harita üzerinde görün.',
     images: ['/icon-512.svg'],
   },
-  verification: {
-    google: 'google-site-verification-code',
-  },
   alternates: {
     canonical: 'https://www.yakindakinobetcieczane.com',
   },
