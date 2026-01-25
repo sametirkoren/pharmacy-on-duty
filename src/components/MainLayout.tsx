@@ -27,14 +27,18 @@ interface SavedPharmacy {
   savedAt: number;
 }
 
-export default function MainLayout() {
+interface MainLayoutProps {
+  initialCity?: string;
+}
+
+export default function MainLayout({ initialCity }: MainLayoutProps) {
   const [mounted, setMounted] = useState(false);
   const [userLocation, setUserLocation] = useState<UserLocation | null>(null);
   const [pharmacies, setPharmacies] = useState<PharmacyWithDistance[]>([]);
   const [selectedPharmacy, setSelectedPharmacy] = useState<PharmacyWithDistance | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [selectedCity, setSelectedCity] = useState<string>('');
+  const [selectedCity, setSelectedCity] = useState<string>(initialCity || '');
   const [selectedDistrict, setSelectedDistrict] = useState<string>('');
   const [searchQuery, setSearchQuery] = useState('');
   const [savedPharmacies, setSavedPharmacies] = useState<SavedPharmacy[]>([]);

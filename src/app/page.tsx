@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import MainLayout from '@/components/MainLayout';
+import { WebsiteStructuredData } from '@/components/StructuredData';
 
 export default function Home() {
   const [mounted, setMounted] = useState(false);
@@ -18,5 +19,10 @@ export default function Home() {
     );
   }
 
-  return <MainLayout />;
+  return (
+    <>
+      <WebsiteStructuredData />
+      <MainLayout />
+    </>
+  );
 }
