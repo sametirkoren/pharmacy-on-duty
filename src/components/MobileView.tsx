@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { PharmacyWithDistance } from '@/types';
+import Breadcrumb, { getBreadcrumbItems } from './Breadcrumb';
 
 interface MobileMapProps {
   pharmacies: PharmacyWithDistance[];
@@ -38,6 +39,7 @@ interface MobileViewProps {
   lastUpdateDate?: string;
   initialCity?: string;
   initialDistrict?: string;
+  showBreadcrumb?: boolean;
 }
 
 export default function MobileView({
@@ -56,7 +58,8 @@ export default function MobileView({
   onToggleTheme,
   lastUpdateDate,
   initialCity,
-  initialDistrict
+  initialDistrict,
+  showBreadcrumb = false
 }: MobileViewProps) {
   const [activeTab, setActiveTab] = useState<'search' | 'map' | 'saved' | 'settings'>('search');
   const [savedPharmacies, setSavedPharmacies] = useState<{id: string; name: string; address: string; phone: string; lat: number; lng: number; savedAt: number}[]>([]);
@@ -573,6 +576,16 @@ export default function MobileView({
           {/* SEARCH TAB */}
           {activeTab === 'search' && (
             <>
+              {/* Breadcrumb - show when city is selected from URL */}
+              {showBreadcrumb && initialCity && (
+                <div style={{ marginBottom: '12px' }}>
+                  <Breadcrumb 
+                    items={getBreadcrumbItems(initialCity, initialDistrict)} 
+                    isDarkMode={isDarkMode} 
+                  />
+                </div>
+              )}
+
               {/* Search Card */}
               {!showPharmacyList ? (
                 <div style={{ 

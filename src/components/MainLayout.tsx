@@ -5,6 +5,7 @@ import { UserLocation, PharmacyWithDistance, NearbyPharmaciesResponse, Pharmacie
 import Sidebar from './Sidebar';
 import MapView from './MapView';
 import MobileView from './MobileView';
+import Breadcrumb, { getBreadcrumbItems } from './Breadcrumb';
 
 // Saved location type
 interface SavedLocation {
@@ -643,6 +644,7 @@ export default function MainLayout({ initialCity, initialDistrict }: MainLayoutP
         lastUpdateDate={lastUpdateDate}
         initialCity={initialCity}
         initialDistrict={initialDistrict}
+        showBreadcrumb={!!initialCity}
       />
     );
   }
@@ -875,6 +877,25 @@ export default function MainLayout({ initialCity, initialDistrict }: MainLayoutP
           isDarkMode={isDarkMode}
         />
       </div>
+
+      {/* Breadcrumb - only show when city is selected from URL */}
+      {initialCity && (
+        <div style={{
+          position: 'absolute',
+          top: '16px',
+          left: '400px',
+          zIndex: 1000,
+          background: isDarkMode ? 'rgba(30,41,59,0.95)' : 'rgba(255,255,255,0.95)',
+          borderRadius: '12px',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+          backdropFilter: 'blur(8px)',
+        }}>
+          <Breadcrumb 
+            items={getBreadcrumbItems(initialCity, initialDistrict)} 
+            isDarkMode={isDarkMode} 
+          />
+        </div>
+      )}
 
       {/* Floating Sidebar */}
       <Sidebar

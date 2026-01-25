@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import MainLayout from '@/components/MainLayout';
 import { WebsiteStructuredData } from '@/components/StructuredData';
+import { generateBreadcrumbSchema, getBreadcrumbItems } from '@/components/Breadcrumb';
 
 const TURKEY_CITIES: Record<string, string> = {
   'adana': 'Adana',
@@ -147,9 +148,16 @@ export default async function CityPage({ params }: PageProps) {
     notFound();
   }
 
+  const breadcrumbItems = getBreadcrumbItems(cityName);
+  const breadcrumbSchema = generateBreadcrumbSchema(breadcrumbItems);
+
   return (
     <>
       <WebsiteStructuredData city={cityName} />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
       <MainLayout initialCity={cityName} />
     </>
   );
