@@ -2,7 +2,7 @@
 
 Türkiye genelinde nöbetçi eczaneleri kolayca bulmanızı sağlayan modern bir web uygulaması. Konumunuza en yakın nöbetçi eczaneleri harita üzerinde görüntüleyin, yol tarifi alın ve iletişim bilgilerine ulaşın.
 
-🔗 **Live Demo:** [https://nobetci-eczane-bulucu.vercel.app](https://nobetci-eczane-bulucu.vercel.app)
+🔗 **Live Demo:** [https://www.yakindakinobetcieczane.com](https://www.yakindakinobetcieczane.com)
 
 ![Screenshot](https://github.com/user-attachments/assets/ce08cc79-9a60-408a-8ee7-73f357b40d7f)
 
