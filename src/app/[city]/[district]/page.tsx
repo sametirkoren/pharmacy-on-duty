@@ -97,7 +97,7 @@ const TURKISH_CHAR_MAP: Record<string, string> = {
 // Convert slug to proper district name with Turkish character support
 function slugToDistrictName(slug: string): string {
   // First capitalize
-  let name = slug
+  const name = slug
     .split('-')
     .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join(' ');
