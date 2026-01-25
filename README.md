@@ -9,15 +9,27 @@ Türkiye genelinde nöbetçi eczaneleri kolayca bulmanızı sağlayan modern bir
 
 ## ✨ Özellikler
 
+### 🔍 Arama & Filtreleme
 - 📍 **Konum Tabanlı Arama** - GPS ile en yakın nöbetçi eczaneleri bulun
+- 🔍 **İl/İlçe Filtreleme** - Şehir ve ilçe bazında arama (ilçe opsiyonel)
 - 🗺️ **İnteraktif Harita** - Leaflet haritası üzerinde eczaneleri görüntüleyin
-- 🌙 **Dark/Light Mode** - Göz yormayan tema desteği
+- ⭐ **Favoriler** - Sık kullandığınız eczaneleri kaydedin (24 saat)
+
+### 🎨 Kullanıcı Deneyimi
+- 🌙 **Dark/Light Mode** - Göz yormayan tema desteği (otomatik sistem teması)
 - 📱 **Responsive Tasarım** - Mobil ve masaüstü uyumlu
-- 🔍 **İl/İlçe Filtreleme** - Şehir ve ilçe bazında arama
 - 📞 **Tek Tıkla Arama** - Eczaneyi doğrudan arayın
 - 🧭 **Yol Tarifi** - Google Maps ile navigasyon
-- ⭐ **Favoriler** - Sık kullandığınız eczaneleri kaydedin
+- 📤 **Paylaşım** - WhatsApp, SMS ile eczane bilgisi paylaşın
 - 🔔 **PWA Desteği** - Ana ekrana ekleyin, offline kullanın
+
+### 🚀 SEO & Performance
+- 🔗 **SEO-Friendly URL'ler** - `/istanbul/bahcelievler` gibi şehir/ilçe sayfaları
+- 🍞 **Breadcrumb Navigation** - Ana Sayfa > İstanbul > Bahçelievler
+- 📊 **JSON-LD Structured Data** - Google zengin sonuçlar için schema.org
+- 🗺️ **Dynamic Sitemap** - 250+ sayfa (81 il + popüler ilçeler)
+- 🤖 **Robots.txt** - Arama motoru optimizasyonu
+- ⚡ **Fast Loading** - Next.js App Router ile optimum performans
 
 ## 🛠️ Teknolojiler
 
@@ -71,20 +83,40 @@ npm run dev
 ```
 pharmacy-finder/
 ├── src/
-│   ├── app/              # Next.js App Router
-│   │   ├── api/          # API Routes
-│   │   └── page.tsx      # Ana sayfa
-│   ├── components/       # React bileşenleri
-│   │   ├── DynamicMap.tsx
-│   │   ├── MobileView.tsx
-│   │   ├── Sidebar.tsx
-│   │   └── ...
-│   └── lib/              # Utility fonksiyonlar
-│       ├── supabase.ts   # Supabase client
-│       └── database.ts   # Database queries
-├── public/               # Statik dosyalar
+│   ├── app/                    # Next.js App Router
+│   │   ├── api/                # API Routes
+│   │   ├── [city]/             # Dinamik şehir sayfaları
+│   │   │   ├── page.tsx        # /istanbul
+│   │   │   └── [district]/     # Dinamik ilçe sayfaları
+│   │   │       └── page.tsx    # /istanbul/bahcelievler
+│   │   ├── sitemap.ts          # Dynamic sitemap
+│   │   ├── robots.ts           # Robots.txt
+│   │   ├── not-found.tsx       # 404 sayfası
+│   │   └── page.tsx            # Ana sayfa
+│   ├── components/             # React bileşenleri
+│   │   ├── MainLayout.tsx      # Ana layout
+│   │   ├── MobileView.tsx      # Mobil görünüm
+│   │   ├── Sidebar.tsx         # Desktop sidebar
+│   │   ├── MapView.tsx         # Harita bileşeni
+│   │   ├── Breadcrumb.tsx      # Breadcrumb navigation
+│   │   └── StructuredData.tsx  # JSON-LD schemas
+│   └── lib/                    # Utility fonksiyonlar
+│       ├── supabase.ts         # Supabase client
+│       ├── database.ts         # Database queries
+│       └── breadcrumb-utils.ts # Breadcrumb utilities
+├── public/                     # Statik dosyalar
 └── package.json
 ```
+
+## 🔗 URL Yapısı
+
+| URL | Açıklama |
+|-----|----------|
+| `/` | Ana sayfa (konum bazlı) |
+| `/istanbul` | İstanbul tüm nöbetçi eczaneler |
+| `/istanbul/bahcelievler` | Bahçelievler nöbetçi eczaneler |
+| `/ankara/cankaya` | Çankaya nöbetçi eczaneler |
+| `/sitemap.xml` | SEO sitemap |
 
 ## 🔧 Scripts
 
