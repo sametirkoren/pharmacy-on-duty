@@ -158,7 +158,7 @@ export default function Sidebar({
       message += `Yol Tarifi: https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lng}\n\n`;
     });
 
-    message += '_Nobetci Eczane uygulamasi ile paylasildi_';
+    message += '_Nobetci Eczane uygulamasi ile paylasildi_\nhttps://www.yakindakinobetcieczane.com';
     
     const encoded = encodeURIComponent(message);
     window.open(`https://wa.me/?text=${encoded}`, '_blank');
