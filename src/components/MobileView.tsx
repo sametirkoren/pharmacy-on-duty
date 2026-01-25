@@ -36,6 +36,8 @@ interface MobileViewProps {
   themeMode?: 'auto' | 'dark' | 'light';
   onToggleTheme?: () => void;
   lastUpdateDate?: string;
+  initialCity?: string;
+  initialDistrict?: string;
 }
 
 export default function MobileView({
@@ -52,18 +54,20 @@ export default function MobileView({
   isDarkMode = false,
   themeMode = 'light',
   onToggleTheme,
-  lastUpdateDate
+  lastUpdateDate,
+  initialCity,
+  initialDistrict
 }: MobileViewProps) {
   const [activeTab, setActiveTab] = useState<'search' | 'map' | 'saved' | 'settings'>('search');
   const [savedPharmacies, setSavedPharmacies] = useState<{id: string; name: string; address: string; phone: string; lat: number; lng: number; savedAt: number}[]>([]);
   const [mounted, setMounted] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState('Türkiye');
-  const [selectedCity, setSelectedCity] = useState('');
-  const [selectedDistrict, setSelectedDistrict] = useState('');
+  const [selectedCity, setSelectedCity] = useState(initialCity || '');
+  const [selectedDistrict, setSelectedDistrict] = useState(initialDistrict || '');
   const [cities, setCities] = useState<string[]>([]);
   const [districts, setDistricts] = useState<string[]>([]);
-  const [showResults, setShowResults] = useState(false);
-  const [showPharmacyList, setShowPharmacyList] = useState(false);
+  const [showResults, setShowResults] = useState(!!initialCity);
+  const [showPharmacyList, setShowPharmacyList] = useState(!!initialCity);
   const [showMiniMap, setShowMiniMap] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const [showLocationModal, setShowLocationModal] = useState(false);
@@ -322,8 +326,8 @@ export default function MobileView({
   });
 
   const handleSearch = () => {
-    if (selectedCity && selectedDistrict) {
-      onCityDistrictSearch(selectedCity, selectedDistrict);
+    if (selectedCity) {
+      onCityDistrictSearch(selectedCity, selectedDistrict || '');
       setShowResults(true);
       setShowPharmacyList(true);
     }
@@ -713,8 +717,8 @@ export default function MobileView({
                   {/* Search Button */}
                   <button
                     onClick={handleSearch}
-                    disabled={!selectedCity || !selectedDistrict}
-                    style={{ width: '100%', background: selectedCity && selectedDistrict ? '#10b981' : '#e5e7eb', color: selectedCity && selectedDistrict ? '#ffffff' : '#9ca3af', fontSize: '16px', fontWeight: 700, padding: '16px', borderRadius: '16px', border: 'none', cursor: selectedCity && selectedDistrict ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxShadow: selectedCity && selectedDistrict ? '0 4px 14px rgba(16,185,129,0.3)' : 'none' }}
+                    disabled={!selectedCity}
+                    style={{ width: '100%', background: selectedCity ? '#10b981' : '#e5e7eb', color: selectedCity ? '#ffffff' : '#9ca3af', fontSize: '16px', fontWeight: 700, padding: '16px', borderRadius: '16px', border: 'none', cursor: selectedCity ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxShadow: selectedCity ? '0 4px 14px rgba(16,185,129,0.3)' : 'none' }}
                   >
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
                     Ara

@@ -29,9 +29,10 @@ interface SavedPharmacy {
 
 interface MainLayoutProps {
   initialCity?: string;
+  initialDistrict?: string;
 }
 
-export default function MainLayout({ initialCity }: MainLayoutProps) {
+export default function MainLayout({ initialCity, initialDistrict }: MainLayoutProps) {
   const [mounted, setMounted] = useState(false);
   const [userLocation, setUserLocation] = useState<UserLocation | null>(null);
   const [pharmacies, setPharmacies] = useState<PharmacyWithDistance[]>([]);
@@ -39,7 +40,7 @@ export default function MainLayout({ initialCity }: MainLayoutProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedCity, setSelectedCity] = useState<string>(initialCity || '');
-  const [selectedDistrict, setSelectedDistrict] = useState<string>('');
+  const [selectedDistrict, setSelectedDistrict] = useState<string>(initialDistrict || '');
   const [searchQuery, setSearchQuery] = useState('');
   const [savedPharmacies, setSavedPharmacies] = useState<SavedPharmacy[]>([]);
   const [sortBy, setSortBy] = useState<'default' | 'distance' | 'name'>('default');
@@ -68,6 +69,48 @@ export default function MainLayout({ initialCity }: MainLayoutProps) {
     };
     fetchLastUpdate();
   }, []);
+
+  // Auto-fetch pharmacies when initialCity is provided (from URL like /ankara or /istanbul/bahcelievler)
+  // This runs only once when mounted and initialCity exists
+  const [initialCityFetched, setInitialCityFetched] = useState(false);
+  
+  useEffect(() => {
+    if (!mounted || !initialCity || initialCityFetched) return;
+    
+    const fetchCityPharmacies = async () => {
+      setIsLoading(true);
+      setError(null);
+      setSelectedCity(initialCity);
+      if (initialDistrict) {
+        setSelectedDistrict(initialDistrict);
+      }
+      try {
+        // Build URL with optional district
+        let url = `/api/pharmacies?city=${encodeURIComponent(initialCity)}`;
+        if (initialDistrict) {
+          url += `&district=${encodeURIComponent(initialDistrict)}`;
+        }
+        const response = await fetch(url);
+        const data = await response.json();
+        
+        if (data.success && data.data && data.data.length > 0) {
+          setPharmacies(data.data);
+          setSelectedPharmacy(data.data[0]);
+          setInitialCityFetched(true);
+        } else {
+          const location = initialDistrict ? `${initialDistrict}, ${initialCity}` : initialCity;
+          setError(`${location} için nöbetçi eczane bulunamadı`);
+        }
+      } catch (err) {
+        console.error('Error fetching city pharmacies:', err);
+        setError('Eczaneler yüklenirken hata oluştu');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchCityPharmacies();
+  }, [mounted, initialCity, initialDistrict, initialCityFetched]);
 
   // Check for mobile viewport
   useEffect(() => {
@@ -119,8 +162,9 @@ export default function MainLayout({ initialCity }: MainLayoutProps) {
   }, [mounted]);
 
   // Auto-request location on page load if permission was previously granted
+  // Skip if initialCity is provided (user came from URL like /ankara)
   useEffect(() => {
-    if (!mounted) return;
+    if (!mounted || initialCity) return;
     
     const savedLocation = localStorage.getItem('savedLocation');
     const hasAskedBefore = localStorage.getItem('locationPermissionAsked');
@@ -136,21 +180,23 @@ export default function MainLayout({ initialCity }: MainLayoutProps) {
           };
           setUserLocation(location);
           
-          // Fetch nearby pharmacies
-          setIsLoading(true);
-          try {
-            const response = await fetch(`/api/nearby?lat=${location.lat}&lng=${location.lng}&radius=50`);
-            const data = await response.json();
-            if (data.success && data.data) {
-              setPharmacies(data.data);
-              if (data.data.length > 0) {
-                setSelectedPharmacy(data.data[0]);
+          // Fetch nearby pharmacies only if no initialCity
+          if (!initialCity) {
+            setIsLoading(true);
+            try {
+              const response = await fetch(`/api/nearby?lat=${location.lat}&lng=${location.lng}&radius=50`);
+              const data = await response.json();
+              if (data.success && data.data) {
+                setPharmacies(data.data);
+                if (data.data.length > 0) {
+                  setSelectedPharmacy(data.data[0]);
+                }
               }
+            } catch (err) {
+              console.log('Auto fetch nearby failed:', err);
+            } finally {
+              setIsLoading(false);
             }
-          } catch (err) {
-            console.log('Auto fetch nearby failed:', err);
-          } finally {
-            setIsLoading(false);
           }
         },
         (error) => {
@@ -159,7 +205,7 @@ export default function MainLayout({ initialCity }: MainLayoutProps) {
         { enableHighAccuracy: false, timeout: 5000, maximumAge: 300000 }
       );
     }
-  }, [mounted, userLocation]);
+  }, [mounted, userLocation, initialCity]);
 
   // Listen for system theme changes when in auto mode
   useEffect(() => {
@@ -377,8 +423,9 @@ export default function MainLayout({ initialCity }: MainLayoutProps) {
   };
 
   // Fetch pharmacies and get user location on mount
+  // Skip if initialCity is provided (URL like /bursa or /istanbul/bahcelievler)
   useEffect(() => {
-    if (!mounted) return;
+    if (!mounted || initialCity || initialDistrict) return;
     
     // Check for saved location first
     const savedLocation = localStorage.getItem('savedLocation');
@@ -439,11 +486,11 @@ export default function MainLayout({ initialCity }: MainLayoutProps) {
 
     // Kayıtlı konum yoksa modal gösterilecek, şimdilik tüm eczaneleri yükle
     loadInitialData();
-  }, [mounted]);
+  }, [mounted, initialCity, initialDistrict]);
 
-  // Search pharmacies by city/district
+  // Search pharmacies by city/district (district is optional)
   const handleCityDistrictSearch = async (city: string, district: string) => {
-    if (!city || !district) return;
+    if (!city) return;
 
     setIsLoading(true);
     setError(null);
@@ -451,9 +498,12 @@ export default function MainLayout({ initialCity }: MainLayoutProps) {
     setSelectedDistrict(district);
 
     try {
-      const response = await fetch(
-        `/api/pharmacies?city=${encodeURIComponent(city)}&district=${encodeURIComponent(district)}`
-      );
+      // Build URL - district is optional
+      let url = `/api/pharmacies?city=${encodeURIComponent(city)}`;
+      if (district && district.trim()) {
+        url += `&district=${encodeURIComponent(district)}`;
+      }
+      const response = await fetch(url);
       const data: PharmaciesResponse = await response.json();
 
       if (data.success && data.data) {
@@ -591,6 +641,8 @@ export default function MainLayout({ initialCity }: MainLayoutProps) {
         themeMode={themeMode}
         onToggleTheme={toggleTheme}
         lastUpdateDate={lastUpdateDate}
+        initialCity={initialCity}
+        initialDistrict={initialDistrict}
       />
     );
   }

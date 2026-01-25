@@ -148,6 +148,61 @@ export class PharmacyService {
   }
 
   /**
+   * Get all pharmacies for a specific city (all districts)
+   * @param city - City name
+   * @param date - Date string in YYYY-MM-DD format (defaults to today)
+   * @returns Promise<Pharmacy[]> - Array of pharmacies in the city
+   * @throws DatabaseError - When database query fails
+   */
+  static async getPharmaciesForCity(
+    city: string,
+    date?: string
+  ): Promise<Pharmacy[]> {
+    try {
+      const queryDate = date || new Date().toISOString().split('T')[0];
+
+      const { data, error } = await supabase
+        .from('pharmacies')
+        .select('*')
+        .ilike('city', city)
+        .eq('date', queryDate)
+        .order('district')
+        .order('pharmacy');
+
+      if (error) {
+        throw new DatabaseError(
+          `Failed to fetch pharmacies for ${city} on date ${queryDate}`,
+          error
+        );
+      }
+
+      // Map database fields to interface fields
+      const mappedData = (data || []).map(item => ({
+        id: item.id,
+        city: item.city,
+        district: item.district,
+        pharmacy: item.pharmacy,
+        address: item.address,
+        phone: item.phone,
+        date: item.date,
+        lat: item.latitude ? parseFloat(item.latitude) : 0,
+        lng: item.longitude ? parseFloat(item.longitude) : 0
+      }));
+
+      return mappedData;
+    } catch (error) {
+      if (error instanceof DatabaseError) {
+        throw error;
+      }
+
+      throw new DatabaseError(
+        'Unexpected error while fetching pharmacies for city',
+        error
+      );
+    }
+  }
+
+  /**
    * Get pharmacies for a specific city and district
    * @param city - City name
    * @param district - District name

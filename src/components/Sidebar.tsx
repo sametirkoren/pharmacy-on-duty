@@ -115,8 +115,9 @@ export default function Sidebar({
   }, [localCity, mounted]);
 
   useEffect(() => {
-    if (!mounted) return;
-    if (localCity && localDistrict) onCityDistrictSearch(localCity, localDistrict);
+    if (!mounted || !localCity) return;
+    // Search when city is selected (district is optional)
+    onCityDistrictSearch(localCity, localDistrict || '');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [localDistrict, localCity, mounted]);
 
